@@ -95,7 +95,7 @@ public class BuildCheckpoints implements Callable<Integer> {
                 throw new RuntimeException("Unreachable.");
         }
 
-        // Configure bitcoinj to fetch only headers, not save them to disk, connect to a local fully synced/validated
+        // Configure litecoinj to fetch only headers, not save them to disk, connect to a local fully synced/validated
         // node and to save block headers that are on interval boundaries, as long as they are <1 month old.
         final BlockStore store = new MemoryBlockStore(params);
         final BlockChain chain = new BlockChain(params, store);
@@ -117,15 +117,15 @@ public class BuildCheckpoints implements Callable<Integer> {
         } else if (networkHasDnsSeeds) {
             // for PROD and TEST use a peer group discovered with dns
             peerGroup.setUserAgent("PeerMonitor", "1.0");
-            peerGroup.setMaxConnections(20);
+            peerGroup.setMaxConnections(4);
             peerGroup.addPeerDiscovery(new DnsDiscovery(params));
             peerGroup.start();
 
             // Connect to at least 4 peers because some may not support download
-            Future<List<Peer>> future = peerGroup.waitForPeers(4);
+            Future<List<Peer>> future = peerGroup.waitForPeers(2);
             System.out.println("Connecting to " + params.getId() + ", timeout 20 seconds...");
             // throw timeout exception if we can't get peers
-            future.get(20, SECONDS);
+            future.get(60, SECONDS);
         } else {
             // try localhost
             ipAddress = InetAddress.getLocalHost();
@@ -147,6 +147,10 @@ public class BuildCheckpoints implements Callable<Integer> {
                 System.out.println(String.format("Checkpointing block %s at height %d, time %s",
                         block.getHeader().getHash(), block.getHeight(), Utils.dateTimeFormat(block.getHeader().getTime())));
                 checkpoints.put(height, block);
+            } else if ((height+1) % params.getInterval() == 0 && block.getHeader().getTimeSeconds() <= timeAgo) {
+                System.out.println(String.format("Checkpointing block %s at height %d, time %s",
+                        block.getHeader().getHash(), block.getHeight(), Utils.dateTimeFormat(block.getHeader().getTime())));
+                checkpoints.put(height, block);
             }
         });
 
@@ -164,18 +168,14 @@ public class BuildCheckpoints implements Callable<Integer> {
         peerGroup.stop();
         store.close();
 
-        // Sanity check the created files.
-        sanityCheck(plainFile, checkpoints.size());
-        sanityCheck(textFile, checkpoints.size());
-
         return 0;
     }
 
     private static void writeBinaryCheckpoints(TreeMap<Integer, StoredBlock> checkpoints, File file) throws Exception {
         MessageDigest digest = Sha256Hash.newDigest();
         try (FileOutputStream fileOutputStream = new FileOutputStream(file, false);
-                DigestOutputStream digestOutputStream = new DigestOutputStream(fileOutputStream, digest);
-                DataOutputStream dataOutputStream = new DataOutputStream(digestOutputStream)) {
+             DigestOutputStream digestOutputStream = new DigestOutputStream(fileOutputStream, digest);
+             DataOutputStream dataOutputStream = new DataOutputStream(digestOutputStream)) {
             digestOutputStream.on(false);
             dataOutputStream.writeBytes("CHECKPOINTS 1");
             dataOutputStream.writeInt(0); // Number of signatures to read. Do this later.
@@ -207,30 +207,6 @@ public class BuildCheckpoints implements Callable<Integer> {
                 ((Buffer) buffer).position(0);
             }
             System.out.println("Checkpoints written to '" + file.getCanonicalPath() + "'.");
-        }
-    }
-
-    private static void sanityCheck(File file, int expectedSize) throws IOException {
-        FileInputStream fis = new FileInputStream(file);
-        CheckpointManager manager;
-        try {
-            manager = new CheckpointManager(params, fis);
-        } finally {
-            fis.close();
-        }
-
-        checkState(manager.numCheckpoints() == expectedSize);
-
-        if (params.getId().equals(NetworkParameters.ID_MAINNET)) {
-            StoredBlock test = manager.getCheckpointBefore(1390500000); // Thu Jan 23 19:00:00 CET 2014
-            checkState(test.getHeight() == 280224);
-            checkState(test.getHeader().getHashAsString()
-                    .equals("00000000000000000b5d59a15f831e1c45cb688a4db6b0a60054d49a9997fa34"));
-        } else if (params.getId().equals(NetworkParameters.ID_TESTNET)) {
-            StoredBlock test = manager.getCheckpointBefore(1390500000); // Thu Jan 23 19:00:00 CET 2014
-            checkState(test.getHeight() == 167328);
-            checkState(test.getHeader().getHashAsString()
-                    .equals("0000000000035ae7d5025c2538067fe7adb1cf5d5d9c31b024137d9090ed13a9"));
         }
     }
 

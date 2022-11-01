@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 The bitcoinj team
+ * Copyright 2014 The litecoinj team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
