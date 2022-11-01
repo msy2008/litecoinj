@@ -1,12 +1,8 @@
-[![Github Build Status](https://github.com/bitcoinj/bitcoinj/workflows/Java%20CI/badge.svg)](https://github.com/bitcoinj/bitcoinj/actions)
-[![GitLab Build Status](https://gitlab.com/bitcoinj/bitcoinj/badges/master/pipeline.svg)](https://gitlab.com/bitcoinj/bitcoinj/pipelines)
-[![Coverage Status](https://coveralls.io/repos/bitcoinj/bitcoinj/badge.png?branch=master)](https://coveralls.io/r/bitcoinj/bitcoinj?branch=master)
+### Welcome to litecoinj
 
-[![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/bitcoinj.png)](https://kiwiirc.com/client/irc.freenode.net/bitcoinj)
+This Java library for Litecoin is a fork of bitcoinj
 
-### Welcome to bitcoinj
-
-The bitcoinj library is a Java implementation of the Bitcoin protocol, which allows it to maintain a wallet and send/receive transactions without needing a local copy of Bitcoin Core. It comes with full documentation and some example apps showing how to use it.
+The litecoinj library is a Java implementation of the Litecoin protocol, which allows it to maintain a wallet and send/receive transactions without needing a local copy of Litecoin Core. It comes with full documentation and some example apps showing how to use it.
 
 ### Technologies
 
@@ -41,11 +37,11 @@ Alternatively, just import the project using your IDE. [IntelliJ](http://www.jet
 
 ### Building and Using the Wallet Tool
 
-The **bitcoinj** `tools` subproject includes a command-line Wallet Tool (`wallet-tool`) that can be used to create and manage **bitcoinj**-based wallets (both the HD keychain and SPV blockchain state.) Using `wallet-tool` on Bitcoin's test net is a great way to learn about Bitcoin and **bitcoinj**.
+The **litecoinj** `tools` subproject includes a command-line Wallet Tool (`wallet-tool`) that can be used to create and manage **litecoinj**-based wallets (both the HD keychain and SPV blockchain state.) Using `wallet-tool` on Litecoin's test net is a great way to learn about Litecoin and **litecoinj**.
 
 To build an executable shell script that runs the command-line Wallet Tool, use:
 ```
-gradle bitcoinj-tools:installDist
+gradle litecoinj-tools:installDist
 ```
 
 You can now run the `wallet-tool` without parameters to get help on its operation:
@@ -53,22 +49,22 @@ You can now run the `wallet-tool` without parameters to get help on its operatio
 ./tools/build/install/wallet-tool/bin/wallet-tool
 ```
 
-To create a test net wallet file in `~/bitcoinj/bitcoinj-test.wallet`, you would use:
+To create a test net wallet file in `~/litecoinj/litecoinj-test.wallet`, you would use:
 ```
-mkdir ~/bitcoinj
+mkdir ~/litecoinj
 ```
 ```
-./tools/build/install/wallet-tool/bin/wallet-tool --net=TEST --wallet=$HOME/bitcoinj/bitcoinj-test.wallet create
-```
-
-To sync the newly created wallet in `~/bitcoinj/bitcoinj-test.wallet` with the test net, you would use:
-```
-./tools/build/install/wallet-tool/bin/wallet-tool --net=TEST --wallet=$HOME/bitcoinj/bitcoinj-test.wallet sync
+./tools/build/install/wallet-tool/bin/wallet-tool --net=TEST --wallet=$HOME/litecoinj/litecoinj-test.wallet create
 ```
 
-To dump the state of the wallet in `~/bitcoinj/bitcoinj-test.wallet` with the test net, you would use:
+To sync the newly created wallet in `~/litecoinj/litecoinj-test.wallet` with the test net, you would use:
 ```
-./tools/build/install/wallet-tool/bin/wallet-tool --net=TEST --wallet=$HOME/bitcoinj/bitcoinj-test.wallet dump
+./tools/build/install/wallet-tool/bin/wallet-tool --net=TEST --wallet=$HOME/litecoinj/litecoinj-test.wallet sync
+```
+
+To dump the state of the wallet in `~/litecoinj/litecoinj-test.wallet` with the test net, you would use:
+```
+./tools/build/install/wallet-tool/bin/wallet-tool --net=TEST --wallet=$HOME/litecoinj/litecoinj-test.wallet dump
 ```
 
 Note: These instructions are for macOS/Linux, for Windows use the `tools/build/install/wallet-tool/bin/wallet-tool.bat` batch file with the equivalent Windows command-line commands and options.
@@ -85,8 +81,8 @@ Now you are ready to [follow the tutorial](https://bitcoinj.github.io/getting-st
 
 Building apps with official releases of **bitcoinj** is covered in the [tutorial](https://bitcoinj.github.io/getting-started).
 
-If you want to develop or test your app with a [Jitpack](https://jitpack.io)-powered build of the latest `master` or `release-0.15` branch of **bitcoinj** follow the dynamically-generated instructions for that branch by following the correct link.
+### Notes
 
+build.gradle: Migrate from maven to maven-publish plugin
 
-* [master](https://jitpack.io/#bitcoinj/bitcoinj/master-SNAPSHOT) branch
-* [release-0.15](https://jitpack.io/#bitcoinj/bitcoinj/release-0.15-SNAPSHOT) branch
+To publish to the local Maven repository, use `gradle publishToMavenLocal` rather than `gradle install`.
