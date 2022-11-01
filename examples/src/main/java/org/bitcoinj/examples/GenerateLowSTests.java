@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.examples;
+package org.litecoinj.examples;
 
 import java.io.IOException;
 import java.math.BigInteger;

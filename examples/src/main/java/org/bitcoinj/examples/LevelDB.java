@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.examples;
+package org.litecoinj.examples;
 
 import java.net.InetAddress;
 import org.bitcoinj.core.FullPrunedBlockChain;

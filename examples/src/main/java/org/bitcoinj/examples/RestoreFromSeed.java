@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.examples;
+package org.litecoinj.examples;
 
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.core.*;
@@ -51,7 +51,7 @@ public class RestoreFromSeed {
         Wallet wallet = Wallet.fromSeed(params, seed, Script.ScriptType.P2PKH);
 
         // Because we are importing an existing wallet which might already have transactions we must re-download the blockchain to make the wallet picks up these transactions
-        // You can find some information about this in the guides: https://bitcoinj.github.io/working-with-the-wallet#setup
+        // You can find some information about this in the guides: https://litecoinj.github.io/working-with-the-wallet#setup
         // To do this we clear the transactions of the wallet and delete a possible existing blockchain file before we download the blockchain again further down.
         System.out.println(wallet.toString());
         wallet.clearTransactions(0);

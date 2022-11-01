@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.examples;
+package org.litecoinj.examples;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
@@ -92,7 +92,7 @@ public class ForwardingService {
 
         // We want to know when we receive money.
         kit.wallet().addCoinsReceivedEventListener((w, tx, prevBalance, newBalance) -> {
-            // Runs in the dedicated "user thread" (see bitcoinj docs for more info on this).
+            // Runs in the dedicated "user thread" (see litecoinj docs for more info on this).
             //
             // The transaction "tx" can either be pending, or included into a block (we didn't see the broadcast).
             Coin value = tx.getValueSentToMe(w);

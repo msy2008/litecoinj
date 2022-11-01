@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.examples;
+package org.litecoinj.examples;
 
 import org.bitcoinj.core.*;
 import org.bitcoinj.params.TestNet3Params;
