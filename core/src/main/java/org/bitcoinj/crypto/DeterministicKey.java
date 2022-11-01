@@ -21,6 +21,7 @@ import org.bitcoinj.core.*;
 import org.bitcoinj.script.Script;
 
 import com.google.common.base.MoreObjects;
+import org.bitcoinj.wallet.Wallet;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.math.ec.ECPoint;
 
@@ -486,6 +487,8 @@ public class DeterministicKey extends ECKey {
             ser.putInt(pub ? params.getBip32HeaderP2PKHpub() : params.getBip32HeaderP2PKHpriv());
         else if (outputScriptType == Script.ScriptType.P2WPKH)
             ser.putInt(pub ? params.getBip32HeaderP2WPKHpub() : params.getBip32HeaderP2WPKHpriv());
+        else if (outputScriptType == Script.ScriptType.P2SH_P2WPKH)
+            ser.putInt(pub ? params.getBip32HeaderP2SHP2WPKHpub() : params.getBip32HeaderP2SHP2WPKHpriv());
         else
             throw new IllegalStateException(outputScriptType.toString());
         ser.put((byte) getDepth());
@@ -503,6 +506,14 @@ public class DeterministicKey extends ECKey {
 
     public String serializePrivB58(NetworkParameters params, Script.ScriptType outputScriptType) {
         return toBase58(serialize(params, false, outputScriptType));
+    }
+
+    public String serializePubB58(NetworkParameters params, Wallet wallet) {
+        return toBase58(serialize(params, true, wallet.getActiveKeyChain().getOutputScriptType()));
+    }
+
+    public String serializePrivB58(NetworkParameters params, Wallet wallet) {
+        return toBase58(serialize(params, false, wallet.getActiveKeyChain().getOutputScriptType()));
     }
 
     public String serializePubB58(NetworkParameters params) {

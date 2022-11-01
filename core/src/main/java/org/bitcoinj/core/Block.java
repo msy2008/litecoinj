@@ -108,6 +108,7 @@ public class Block extends Message {
 
     /** Stores the hash of the block. If null, getHash() will recalculate it. */
     private Sha256Hash hash;
+    private Sha256Hash scryptHash;
 
     protected boolean headerBytesValid;
     protected boolean transactionBytesValid;
@@ -118,7 +119,7 @@ public class Block extends Message {
     protected int optimalEncodingMessageSize;
 
     /** Special case constructor, used for the genesis node, cloneAsHeader and unit tests. */
-    Block(NetworkParameters params, long setVersion) {
+    public Block(NetworkParameters params, long setVersion) {
         super(params);
         // Set up a few basic things. We are not complete after this though.
         version = setVersion;
@@ -274,14 +275,14 @@ public class Block extends Message {
     //
     //   "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
     private static final byte[] genesisTxInputScriptBytes = Utils.HEX.decode
-                ("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
+                ("04ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536");
 
     private static final byte[] genesisTxScriptPubKeyBytes;
     static {
         ByteArrayOutputStream scriptPubKeyBytes = new ByteArrayOutputStream();
         try {
             Script.writeBytes(scriptPubKeyBytes, Utils.HEX.decode
-                    ("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
+                    ("040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9"));
         } catch (IOException e) {
             throw new RuntimeException(e); // Cannot happen.
         }
@@ -402,6 +403,7 @@ public class Block extends Message {
         if (!transactionBytesValid)
             payload = null;
         hash = null;
+        scryptHash = null;
     }
 
     private void unCacheTransactions() {
@@ -430,6 +432,20 @@ public class Block extends Message {
         }
     }
 
+    private Sha256Hash calculateScryptHash() {
+        try {
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);
+            writeHeader(bos);
+            byte[] scryptDigest = Utils.scryptDigest(bos.toByteArray());
+            if(scryptDigest == null) {
+                throw new RuntimeException("Scrypt digest is null.");
+            }
+            return Sha256Hash.wrap(Utils.reverseBytes(scryptDigest));
+        } catch (IOException e) {
+            throw new RuntimeException(e); // Cannot happen.
+        }
+    }
+
     /**
      * Returns the hash of the block (which for a valid, solved block should be below the target) in the form seen on
      * the block explorer. If you call this on block 1 in the mainnet chain
@@ -437,6 +453,10 @@ public class Block extends Message {
      */
     public String getHashAsString() {
         return getHash().toString();
+    }
+
+    public String getScryptHashAsString() {
+        return getScryptHash().toString();
     }
 
     /**
@@ -448,6 +468,12 @@ public class Block extends Message {
         if (hash == null)
             hash = calculateHash();
         return hash;
+    }
+
+    public Sha256Hash getScryptHash() {
+        if (scryptHash == null)
+            scryptHash = calculateScryptHash();
+        return scryptHash;
     }
 
     /**
@@ -482,6 +508,7 @@ public class Block extends Message {
         block.merkleRoot = getMerkleRoot();
         block.hash = getHash();
         block.transactions = null;
+        block.scryptHash = getScryptHash();
         return block;
     }
 
@@ -561,11 +588,11 @@ public class Block extends Message {
         // field is of the right value. This requires us to have the preceding blocks.
         BigInteger target = getDifficultyTargetAsInteger();
 
-        BigInteger h = getHash().toBigInteger();
+        BigInteger h = getScryptHash().toBigInteger();
         if (h.compareTo(target) > 0) {
             // Proof of work check failed!
             if (throwException)
-                throw new VerificationException("Hash is higher than target: " + getHashAsString() + " vs "
+                throw new VerificationException("Hash is higher than target: " + getScryptHashAsString() + " vs "
                         + target.toString(16));
             else
                 return false;
@@ -803,6 +830,7 @@ public class Block extends Message {
         unCacheHeader();
         merkleRoot = value;
         hash = null;
+        scryptHash = null;
     }
 
     /**
@@ -835,6 +863,7 @@ public class Block extends Message {
         // Force a recalculation next time the values are needed.
         merkleRoot = null;
         hash = null;
+        scryptHash = null;
     }
 
     /** Returns the version of the block data structure as defined by the Bitcoin protocol. */
@@ -854,6 +883,7 @@ public class Block extends Message {
         unCacheHeader();
         this.prevBlockHash = prevBlockHash;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /**
@@ -876,6 +906,7 @@ public class Block extends Message {
         unCacheHeader();
         this.time = time;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /**
@@ -897,6 +928,7 @@ public class Block extends Message {
         unCacheHeader();
         this.difficultyTarget = compactForm;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /**
@@ -913,6 +945,7 @@ public class Block extends Message {
         unCacheHeader();
         this.nonce = nonce;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /** Returns an immutable list of transactions held in this block, or null if this object represents just a header. */

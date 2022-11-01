@@ -31,19 +31,19 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+import org.bouncycastle.crypto.generators.SCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.util.concurrent.Uninterruptibles.sleepUninterruptibly;
 
 /**
  * A collection of various utility methods that are helpful for working with the Bitcoin protocol.
- * To enable debug logging from the library, run with -Dbitcoinj.logging=true on your command line.
+ * To enable debug logging from the library, run with -Dlitecoinj.logging=true on your command line.
  */
 public class Utils {
 
@@ -57,7 +57,7 @@ public class Utils {
     /**
      * Max initial size of variable length arrays and ArrayLists that could be attacked.
      * Avoids this attack: Attacker sends a msg indicating it will contain a huge number (eg 2 billion) elements (eg transaction inputs) and
-     * forces bitcoinj to try to allocate a huge piece of the memory resulting in OutOfMemoryError.
+     * forces litecoinj to try to allocate a huge piece of the memory resulting in OutOfMemoryError.
     */
     public static final int MAX_INITIAL_ARRAY_LENGTH = 20;
 
@@ -539,5 +539,13 @@ public class Utils {
         for (byte[] push : stack)
             parts.add('[' + HEX.encode(push) + ']');
         return SPACE_JOINER.join(parts);
+    }
+
+    public static byte[] scryptDigest(byte[] input) {
+        try {
+            return SCrypt.generate(input, input, 1024, 1, 1, 32);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

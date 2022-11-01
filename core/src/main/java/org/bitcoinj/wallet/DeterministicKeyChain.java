@@ -114,13 +114,18 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
     // that feature yet. In future we might hand out different accounts for cases where we wish to hand payers
     // a payment request that can generate lots of addresses independently.
     // The account path may be overridden by subclasses.
-    // m / 0'
-    public static final HDPath ACCOUNT_ZERO_PATH = HDPath.M(ChildNumber.ZERO_HARDENED);
-    // m / 1'
-    public static final HDPath ACCOUNT_ONE_PATH = HDPath.M(ChildNumber.ONE_HARDENED);
-    // m / 44' / 0' / 0'
+    // m / 44' / 2' / 0'
     public static final HDPath BIP44_ACCOUNT_ZERO_PATH = HDPath.M(new ChildNumber(44, true))
-                        .extend(ChildNumber.ZERO_HARDENED, ChildNumber.ZERO_HARDENED);
+            .extend(new ChildNumber(2, true), ChildNumber.ZERO_HARDENED);
+    // m / 49' / 2' / 0'
+    public static final HDPath BIP49_ACCOUNT_ZERO_PATH = HDPath.M(new ChildNumber(49, true))
+            .extend(new ChildNumber(2, true), ChildNumber.ZERO_HARDENED);
+    // m / 44' / 2' / 0'
+    public static final HDPath BIP84_ACCOUNT_ZERO_PATH = HDPath.M(new ChildNumber(84, true))
+            .extend(new ChildNumber(2, true), ChildNumber.ZERO_HARDENED);
+    // m / 47' / 0' / 0'
+    public static final HDPath BIP47_ACCOUNT_ZERO_PATH = HDPath.M(new ChildNumber(47, true))
+            .extend(new ChildNumber(0, true), ChildNumber.ZERO_HARDENED);
     public static final HDPath EXTERNAL_SUBPATH = HDPath.M(ChildNumber.ZERO);
     public static final HDPath INTERNAL_SUBPATH = HDPath.M(ChildNumber.ONE);
 
@@ -273,7 +278,7 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
         }
 
         /**
-         * Use an account path other than the default {@link DeterministicKeyChain#ACCOUNT_ZERO_PATH}.
+         * Use an account path other than the default {@link DeterministicKeyChain#BIP44_ACCOUNT_ZERO_PATH}.
          */
         public T accountPath(List<ChildNumber> accountPath) {
             checkState(watchingKey == null, "either watch or accountPath");
@@ -285,7 +290,7 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
             checkState(passphrase == null || seed == null, "Passphrase must not be specified with seed");
 
             if (accountPath == null)
-                accountPath = ACCOUNT_ZERO_PATH;
+                accountPath = BIP44_ACCOUNT_ZERO_PATH;
 
             if (random != null)
                 // Default passphrase to "" if not specified
@@ -361,7 +366,8 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
     protected DeterministicKeyChain(DeterministicSeed seed, @Nullable KeyCrypter crypter,
             Script.ScriptType outputScriptType, List<ChildNumber> accountPath) {
         checkArgument(outputScriptType == null || outputScriptType == Script.ScriptType.P2PKH
-                || outputScriptType == Script.ScriptType.P2WPKH, "Only P2PKH or P2WPKH allowed.");
+                || outputScriptType == Script.ScriptType.P2WPKH
+                || outputScriptType == Script.ScriptType.P2SH_P2WPKH, "Only P2PKH or P2WPKH allowed.");
         this.outputScriptType = outputScriptType != null ? outputScriptType : Script.ScriptType.P2PKH;
         this.accountPath = HDPath.M(accountPath);
         this.seed = seed;
@@ -510,7 +516,7 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
                 HDPath path = parentKey.getPath().extend(new ChildNumber(index - numberOfKeys + i, false));
                 DeterministicKey k = hierarchy.get(path, false, false);
                 // Just a last minute sanity check before we hand the key out to the app for usage. This isn't inspired
-                // by any real problem reports from bitcoinj users, but I've heard of cases via the grapevine of
+                // by any real problem reports from litecoinj users, but I've heard of cases via the grapevine of
                 // places that lost money due to bitflips causing addresses to not match keys. Of course in an
                 // environment with flaky RAM there's no real way to always win: bitflips could be introduced at any
                 // other layer. But as we're potentially retrieving from long term storage here, check anyway.
@@ -817,7 +823,7 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
                     accountPath.add(new ChildNumber(i));
                 }
                 if (accountPath.isEmpty())
-                    accountPath = ACCOUNT_ZERO_PATH;
+                    accountPath = BIP44_ACCOUNT_ZERO_PATH;
                 if (chain != null) {
                     checkState(lookaheadSize >= 0);
                     chain.setLookaheadSize(lookaheadSize);
@@ -1357,6 +1363,10 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
      * @see org.bitcoinj.wallet.MarriedKeyChain
      */
     public boolean isMarried() {
+        return false;
+    }
+
+    public boolean isNestedSegwit() {
         return false;
     }
 

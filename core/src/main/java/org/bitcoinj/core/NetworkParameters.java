@@ -26,6 +26,7 @@ import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.utils.MonetaryFormat;
 
 import javax.annotation.*;
+import java.io.ByteArrayOutputStream;
 import java.math.*;
 import java.util.*;
 
@@ -42,13 +43,13 @@ import org.bitcoinj.utils.VersionTally;
  */
 public abstract class NetworkParameters {
     /** The string returned by getId() for the main, production network where people trade things. */
-    public static final String ID_MAINNET = "org.bitcoin.production";
+    public static final String ID_MAINNET = "org.litecoin.production";
     /** The string returned by getId() for the testnet. */
-    public static final String ID_TESTNET = "org.bitcoin.test";
+    public static final String ID_TESTNET = "org.litecoin.test";
     /** The string returned by getId() for regtest mode. */
-    public static final String ID_REGTEST = "org.bitcoin.regtest";
+    public static final String ID_REGTEST = "org.litecoin.regtest";
     /** Unit test network. */
-    public static final String ID_UNITTESTNET = "org.bitcoinj.unittest";
+    public static final String ID_UNITTESTNET = "org.litecoinj.unittest";
 
     /** The string used by the payment protocol to represent the main net. */
     public static final String PAYMENT_PROTOCOL_ID_MAINNET = "main";
@@ -65,6 +66,7 @@ public abstract class NetworkParameters {
     protected long packetMagic;  // Indicates message origin network and is used to seek to the next message when stream state is unknown.
     protected int addressHeader;
     protected int p2shHeader;
+    protected int p2shHeader2;
     protected int dumpedPrivateKeyHeader;
     protected String segwitAddressHrp;
     protected int interval;
@@ -73,6 +75,8 @@ public abstract class NetworkParameters {
     protected int bip32HeaderP2PKHpriv;
     protected int bip32HeaderP2WPKHpub;
     protected int bip32HeaderP2WPKHpriv;
+    protected int bip32HeaderP2SHP2WPKHpub;
+    protected int bip32HeaderP2SHP2WPKHpriv;
 
     /** Used to check majorities for block version upgrade */
     protected int majorityEnforceBlockUpgrade;
@@ -97,11 +101,8 @@ public abstract class NetworkParameters {
     protected Map<Integer, Sha256Hash> checkpoints = new HashMap<>();
     protected volatile transient MessageSerializer defaultSerializer = null;
 
-    protected NetworkParameters() {
-    }
-
-    public static final int TARGET_TIMESPAN = 14 * 24 * 60 * 60;  // 2 weeks per difficulty cycle, on average.
-    public static final int TARGET_SPACING = 10 * 60;  // 10 minutes per block.
+    public static final int TARGET_TIMESPAN = (int)(3.5 * 24 * 60 * 60);  // 3.5 days difficulty cycle, on average.
+    public static final int TARGET_SPACING = (int)(2.5 * 60);  // 2.5 minutes per block.
     public static final int INTERVAL = TARGET_TIMESPAN / TARGET_SPACING;
     
     /**
@@ -114,7 +115,7 @@ public abstract class NetworkParameters {
     /**
      * The maximum number of coins to be generated
      */
-    public static final long MAX_COINS = 21000000;
+    public static final long MAX_COINS = 84000000;
 
     /**
      * The maximum money to be generated
@@ -259,6 +260,10 @@ public abstract class NetworkParameters {
         return p2shHeader;
     }
 
+    public int getP2SHHeader2() {
+        return p2shHeader2;
+    }
+
     /** First byte of a base58 encoded dumped private key. See {@link DumpedPrivateKey}. */
     public int getDumpedPrivateKeyHeader() {
         return dumpedPrivateKeyHeader;
@@ -314,6 +319,17 @@ public abstract class NetworkParameters {
     public int getBip32HeaderP2WPKHpriv() {
         return bip32HeaderP2WPKHpriv;
     }
+
+    /** Returns the 4 byte header for BIP32 wallet P2SH-P2WPKH - public key part. */
+    public int getBip32HeaderP2SHP2WPKHpub() {
+        return bip32HeaderP2SHP2WPKHpub;
+    }
+
+    /** Returns the 4 byte header for BIP32 wallet P2SH-P2WPKH - private key part. */
+    public int getBip32HeaderP2SHP2WPKHpriv() {
+        return bip32HeaderP2SHP2WPKHpriv;
+    }
+
     /**
      * Returns the number of coins that will be produced in total, on this
      * network. Where not applicable, a very large number of coins is returned
@@ -446,7 +462,7 @@ public abstract class NetworkParameters {
     public abstract int getProtocolVersionNum(final ProtocolVersion version);
 
     public static enum ProtocolVersion {
-        MINIMUM(70000),
+        MINIMUM(70002),
         PONG(60001),
         BLOOM_FILTER(70000), // BIP37
         BLOOM_FILTER_BIP111(70011), // BIP111

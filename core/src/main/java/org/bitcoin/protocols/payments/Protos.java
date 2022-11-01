@@ -52,7 +52,7 @@ public final class Protos {
   }
   /**
    * <pre>
-   * Generalized form of "send payment to this/these bitcoin addresses"
+   * Generalized form of "send payment to this/these litecoin addresses"
    * </pre>
    *
    * Protobuf type {@code payments.Output}
@@ -250,7 +250,7 @@ public final class Protos {
 
     /**
      * <pre>
-     * Generalized form of "send payment to this/these bitcoin addresses"
+     * Generalized form of "send payment to this/these litecoin addresses"
      * </pre>
      *
      * Protobuf type {@code payments.Output}

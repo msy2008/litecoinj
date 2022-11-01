@@ -44,9 +44,9 @@ import java.util.Objects;
 public class VersionMessage extends Message {
 
     /** The version of this library release, as a string. */
-    public static final String BITCOINJ_VERSION = "0.16.1";
+    public static final String BITCOINJ_VERSION = "0.16";
     /** The value that is prepended to the subVer field of this application. */
-    public static final String LIBRARY_SUBVER = "/bitcoinj:" + BITCOINJ_VERSION + "/";
+    public static final String LIBRARY_SUBVER = "/litecoinj:" + BITCOINJ_VERSION + "/";
 
     /** A service bit that denotes whether the peer has a full copy of the block chain or not. */
     public static final int NODE_NETWORK = 1 << 0;
@@ -58,8 +58,6 @@ public class VersionMessage extends Message {
     public static final int NODE_WITNESS = 1 << 3;
     /** A service bit that denotes whether the peer has at least the last two days worth of blockchain (BIP159). */
     public static final int NODE_NETWORK_LIMITED = 1 << 10;
-    /** A service bit used by Bitcoin-ABC to announce Bitcoin Cash nodes. */
-    public static final int NODE_BITCOIN_CASH = 1 << 5;
 
     /**
      * The version number of the protocol spoken.
@@ -233,8 +231,8 @@ public class VersionMessage extends Message {
 
     /**
      * <p>Appends the given user-agent information to the subVer field. The subVer is composed of a series of
-     * name:version pairs separated by slashes in the form of a path. For example a typical subVer field for bitcoinj
-     * users might look like "/bitcoinj:0.13/MultiBit:1.2/" where libraries come further to the left.</p>
+     * name:version pairs separated by slashes in the form of a path. For example a typical subVer field for litecoinj
+     * users might look like "/litecoinj:0.13/MultiBit:1.2/" where libraries come further to the left.</p>
      *
      * <p>There can be as many components as you feel a need for, and the version string can be anything, but it is
      * recommended to use A.B.C where A = major, B = minor and C = revision for software releases, and dates for
@@ -243,7 +241,7 @@ public class VersionMessage extends Message {
      *
      * <p>Anything put in the "comments" field will appear in brackets and may be used for platform info, or anything
      * else. For example, calling {@code appendToSubVer("MultiBit", "1.0", "Windows")} will result in a subVer being
-     * set of "/bitcoinj:1.0/MultiBit:1.0(Windows)/". Therefore the / ( and ) characters are reserved in all these
+     * set of "/litecoinj:1.0/MultiBit:1.0(Windows)/". Therefore the / ( and ) characters are reserved in all these
      * components. If you don't want to add a comment (recommended), pass null.</p>
      *
      * <p>See <a href="https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki">BIP 14</a> for more information.</p>

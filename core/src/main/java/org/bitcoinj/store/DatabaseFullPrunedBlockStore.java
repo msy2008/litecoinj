@@ -497,7 +497,7 @@ public abstract class DatabaseFullPrunedBlockStore implements FullPrunedBlockSto
                 results.close();
             } catch (SQLException ex) {
                 throw new BlockStoreException("Database block store is not compatible with the current release.  " +
-                        "See bitcoinj release notes for further information: " + ex.getMessage());
+                        "See litecoinj release notes for further information: " + ex.getMessage());
             } finally {
                 if (ps != null && !ps.isClosed()) {
                     ps.close();
@@ -1133,7 +1133,7 @@ public abstract class DatabaseFullPrunedBlockStore implements FullPrunedBlockSto
             s = conn.get().prepareStatement(getTransactionOutputSelectSQL());
             for (ECKey key : keys) {
                 // TODO switch to pubKeyHash in order to support native segwit addresses
-                s.setString(1, LegacyAddress.fromKey(params, key).toString());
+                s.setString(1, LegacyAddress.fromKey(params, key, ScriptType.P2PKH).toString());
                 ResultSet rs = s.executeQuery();
                 while (rs.next()) {
                     Sha256Hash hash = Sha256Hash.wrap(rs.getBytes(1));

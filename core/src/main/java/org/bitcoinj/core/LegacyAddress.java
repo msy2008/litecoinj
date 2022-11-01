@@ -25,7 +25,10 @@ import javax.annotation.Nullable;
 
 import com.google.common.primitives.UnsignedBytes;
 import org.bitcoinj.params.Networks;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.script.Script.ScriptType;
+import org.bitcoinj.script.ScriptBuilder;
+import org.bitcoinj.script.ScriptPattern;
 
 /**
  * <p>A Bitcoin address looks like 1MsScoe2fTJoq4ZPdQgqyhgWeoNamYPevy and is derived from an elliptic curve public key
@@ -50,7 +53,7 @@ public class LegacyAddress extends Address {
     /**
      * Private constructor. Use {@link #fromBase58(NetworkParameters, String)},
      * {@link #fromPubKeyHash(NetworkParameters, byte[])}, {@link #fromScriptHash(NetworkParameters, byte[])} or
-     * {@link #fromKey(NetworkParameters, ECKey)}.
+     * {@link #fromKey(NetworkParameters, ECKey, ScriptType)}.
      * 
      * @param params
      *            network this address is valid for
@@ -92,7 +95,28 @@ public class LegacyAddress extends Address {
      * @return constructed address
      */
     public static LegacyAddress fromKey(NetworkParameters params, ECKey key) {
-        return fromPubKeyHash(params, key.getPubKeyHash());
+        return fromKey(params, key, ScriptType.P2PKH);
+    }
+
+    /**
+     * Construct a {@link LegacyAddress} that represents the public part of the given {@link ECKey}. Note that an address is
+     * derived from a hash of the public key and is not the public key itself.
+     * 
+     * @param params
+     *            network this address is valid for
+     * @param key
+     *            only the public part is used
+     * @return constructed address
+     */
+    public static LegacyAddress fromKey(NetworkParameters params, ECKey key, ScriptType outputScriptType) {
+        if(outputScriptType == ScriptType.P2PKH) {
+            return fromPubKeyHash(params, key.getPubKeyHash());
+        } else if(outputScriptType == ScriptType.P2SH_P2WPKH) {
+            Script script = ScriptBuilder.createP2SHP2WPKHOutputScript(key);
+            return fromScriptHash(params, ScriptPattern.extractHashFromP2SH(script));
+        } else {
+            throw new IllegalArgumentException("Prohibited output script type: " + outputScriptType);
+        }
     }
 
     /**
@@ -130,14 +154,14 @@ public class LegacyAddress extends Address {
             for (NetworkParameters p : Networks.get()) {
                 if (version == p.getAddressHeader())
                     return new LegacyAddress(p, false, bytes);
-                else if (version == p.getP2SHHeader())
+                else if (version == p.getP2SHHeader() || version == p.getP2SHHeader2())
                     return new LegacyAddress(p, true, bytes);
             }
             throw new AddressFormatException.InvalidPrefix("No network found for " + base58);
         } else {
             if (version == params.getAddressHeader())
                 return new LegacyAddress(params, false, bytes);
-            else if (version == params.getP2SHHeader())
+            else if (version == params.getP2SHHeader() || version == params.getP2SHHeader2())
                 return new LegacyAddress(params, true, bytes);
             throw new AddressFormatException.WrongNetwork(version);
         }
@@ -149,7 +173,7 @@ public class LegacyAddress extends Address {
      * @return version header as one byte
      */
     public int getVersion() {
-        return p2sh ? params.getP2SHHeader() : params.getAddressHeader();
+        return p2sh ? params.getP2SHHeader2() : params.getAddressHeader();
     }
 
     /**

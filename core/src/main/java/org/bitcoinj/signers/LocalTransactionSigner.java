@@ -91,6 +91,8 @@ public class LocalTransactionSigner implements TransactionSigner {
             }
 
             RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
+            System.out.println("our RedeemData:: " + redeemData);
+
 
             // For P2SH inputs we need to share derivation path of the signing key with other signers, so that they
             // use correct key to calculate their signatures.
@@ -114,7 +116,7 @@ public class LocalTransactionSigner implements TransactionSigner {
             byte[] script = redeemData.redeemScript.getProgram();
             try {
                 if (ScriptPattern.isP2PK(scriptPubKey) || ScriptPattern.isP2PKH(scriptPubKey)
-                        || ScriptPattern.isP2SH(scriptPubKey)) {
+                        || ScriptPattern.isP2SH(scriptPubKey) && !ScriptPattern.isP2WPKH(redeemData.redeemScript)) {
                     TransactionSignature signature = tx.calculateSignature(i, key, script, Transaction.SigHash.ALL,
                             false);
 
@@ -131,11 +133,20 @@ public class LocalTransactionSigner implements TransactionSigner {
                     txIn.setScriptSig(inputScript);
                     txIn.setWitness(null);
                 } else if (ScriptPattern.isP2WPKH(scriptPubKey)) {
+                    System.out.println("is P2WPKH");
                     Script scriptCode = ScriptBuilder.createP2PKHOutputScript(key);
                     Coin value = txIn.getValue();
                     TransactionSignature signature = tx.calculateWitnessSignature(i, key, scriptCode, value,
                             Transaction.SigHash.ALL, false);
                     txIn.setScriptSig(ScriptBuilder.createEmpty());
+                    txIn.setWitness(TransactionWitness.redeemP2WPKH(signature, key));
+                } else if(ScriptPattern.isP2SH(scriptPubKey) && ScriptPattern.isP2WPKH(redeemData.redeemScript)) {
+                    Script redeemScript = ScriptBuilder.createP2WPKHOutputScript(key);
+                    Script witnessScript = ScriptBuilder.createP2PKHOutputScript(key);
+                    Coin value = txIn.getValue();
+                    TransactionSignature signature = tx.calculateWitnessSignature(i, key, witnessScript, value,
+                            Transaction.SigHash.ALL, false);
+                    txIn.setScriptSig(new ScriptBuilder().data(redeemScript.getProgram()).build());
                     txIn.setWitness(TransactionWitness.redeemP2WPKH(signature, key));
                 } else {
                     throw new IllegalStateException(script.toString());

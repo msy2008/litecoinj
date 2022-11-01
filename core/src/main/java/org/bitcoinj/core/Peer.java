@@ -519,7 +519,7 @@ public class Peer extends PeerSocketHandler {
         vPeerVersionMessage = peerVersionMessage;
         // Switch to the new protocol version.
         log.info(toString());
-        // bitcoinj is a client mode implementation. That means there's not much point in us talking to other client
+        // litecoinj is a client mode implementation. That means there's not much point in us talking to other client
         // mode nodes because we can't download the data from them we need to find/verify transactions. Some bogus
         // implementations claim to have a block chain in their services field but then report a height of zero, filter
         // them out here.
@@ -533,12 +533,6 @@ public class Peer extends PeerSocketHandler {
         if ((peerVersionMessage.localServices & requiredServices) != requiredServices) {
             log.info("{}: Peer doesn't support these required services: {}", this,
                     VersionMessage.toStringServices(requiredServices & ~peerVersionMessage.localServices));
-            // Shut down the channel gracefully.
-            close();
-            return;
-        }
-        if ((peerVersionMessage.localServices & VersionMessage.NODE_BITCOIN_CASH) == VersionMessage.NODE_BITCOIN_CASH) {
-            log.info("{}: Peer follows an incompatible block chain.", this);
             // Shut down the channel gracefully.
             close();
             return;

@@ -34,14 +34,12 @@ import org.bitcoinj.wallet.WalletTransaction.Pool;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.math.IntMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 import javax.annotation.Nullable;
 import java.io.*;
-import java.math.RoundingMode;
 import java.util.*;
 
 import static org.bitcoinj.core.NetworkParameters.ProtocolVersion.WITNESS_VERSION;
@@ -55,7 +53,7 @@ import java.math.BigInteger;
  * the minting of new coins. A Transaction object corresponds to the equivalent in the Bitcoin C++ implementation.</p>
  *
  * <p>Transactions are the fundamental atoms of Bitcoin and have many powerful features. Read
- * <a href="https://bitcoinj.github.io/working-with-transactions">"Working with transactions"</a> in the
+ * <a href="https://litecoinj.github.io/working-with-transactions">"Working with transactions"</a> in the
  * documentation to learn more about how to use this class.</p>
  *
  * <p>All Bitcoin transactions are at risk of being reversed, though the risk is much less than with traditional payment
@@ -342,7 +340,7 @@ public class Transaction extends ChildMessage {
     public int getVsize() {
         if (!hasWitnesses())
             return getMessageSize();
-        return IntMath.divide(getWeight(), 4, RoundingMode.CEILING); // round up
+        return (getWeight() + 3) / 4; // round up
     }
 
     /**

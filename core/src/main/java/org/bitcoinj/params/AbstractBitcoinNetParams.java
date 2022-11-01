@@ -18,28 +18,22 @@
 package org.bitcoinj.params;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.bitcoinj.core.Coin.FIFTY_COINS;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
-import org.bitcoinj.core.Block;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Sha256Hash;
-import org.bitcoinj.core.StoredBlock;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionOutput;
-import org.bitcoinj.core.Utils;
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptOpCodes;
 import org.bitcoinj.utils.MonetaryFormat;
-import org.bitcoinj.core.VerificationException;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
-
-import org.bitcoinj.core.BitcoinSerializer;
 
 /**
  * Parameters for Bitcoin-like networks.
@@ -49,8 +43,8 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
     /**
      * Scheme part for Bitcoin URIs.
      */
-    public static final String BITCOIN_SCHEME = "bitcoin";
-    public static final int REWARD_HALVING_INTERVAL = 210000;
+    public static final String BITCOIN_SCHEME = "litecoin";
+    public static final int REWARD_HALVING_INTERVAL = 840000;
 
     private static final Logger log = LoggerFactory.getLogger(AbstractBitcoinNetParams.class);
 
@@ -115,18 +109,28 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
         // two weeks after the initial block chain download.
         final Stopwatch watch = Stopwatch.createStarted();
         Sha256Hash hash = prev.getHash();
-        StoredBlock cursor = null;
-        final int interval = this.getInterval();
-        for (int i = 0; i < interval; i++) {
+        StoredBlock cursor = blockStore.get(hash);;
+        long blocksToGoBack = this.getInterval()-1;
+        if(storedPrev.getHeight()+1 != this.getInterval()) {
+            blocksToGoBack = this.getInterval();
+        }
+        for (int i = 0; i < blocksToGoBack; i++) {
+            hash = cursor.getHeader().getPrevBlockHash();
             cursor = blockStore.get(hash);
             if (cursor == null) {
                 // This should never happen. If it does, it means we are following an incorrect or busted chain.
                 throw new VerificationException(
                         "Difficulty transition point but we did not find a way back to the last transition point. Not found: " + hash);
             }
-            hash = cursor.getHeader().getPrevBlockHash();
         }
-        checkState(cursor != null && isDifficultyTransitionPoint(cursor.getHeight() - 1),
+        checkState(cursor != null, "No block found for difficulty transition.");
+        boolean isDifficultyTransitionPoint = false;
+        if(blocksToGoBack == this.getInterval()-1) {
+            isDifficultyTransitionPoint = isDifficultyTransitionPoint(cursor.getHeight()-1);
+        } else if(blocksToGoBack == this.getInterval()) {
+            isDifficultyTransitionPoint = isDifficultyTransitionPoint(cursor.getHeight());
+        }
+        checkState(isDifficultyTransitionPoint,
                 "Didn't arrive at a transition point.");
         watch.stop();
         if (watch.elapsed(TimeUnit.MILLISECONDS) > 50)
@@ -142,8 +146,13 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
             timespan = targetTimespan * 4;
 
         BigInteger newTarget = Utils.decodeCompactBits(prev.getDifficultyTarget());
+        boolean fShift = newTarget.compareTo(maxTarget.subtract(BigInteger.ONE)) > 0;
+        if(fShift)
+            newTarget = newTarget.shiftRight(1);
         newTarget = newTarget.multiply(BigInteger.valueOf(timespan));
         newTarget = newTarget.divide(BigInteger.valueOf(targetTimespan));
+        if(fShift)
+            newTarget = newTarget.shiftLeft(1);
 
         if (newTarget.compareTo(this.getMaxTarget()) > 0) {
             log.info("Difficulty hit proof of work limit: {}", newTarget.toString(16));

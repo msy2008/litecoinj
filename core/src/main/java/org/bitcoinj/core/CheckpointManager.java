@@ -41,9 +41,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -85,7 +83,7 @@ public class CheckpointManager {
 
     public static final BaseEncoding BASE64 = BaseEncoding.base64().omitPadding();
 
-    /** Loads the default checkpoints bundled with bitcoinj */
+    /** Loads the default checkpoints bundled with litecoinj */
     public CheckpointManager(Context context) throws IOException {
         this(context.getParams(), null);
     }
@@ -108,7 +106,7 @@ public class CheckpointManager {
             throw new IOException("Unsupported format.");
     }
 
-    /** Returns a checkpoints stream pointing to inside the bitcoinj JAR */
+    /** Returns a checkpoints stream pointing to inside the litecoinj JAR */
     public static InputStream openStream(NetworkParameters params) {
         return CheckpointManager.class.getResourceAsStream("/" + params.getId() + ".checkpoints.txt");
     }
@@ -203,6 +201,43 @@ public class CheckpointManager {
         }
     }
 
+    public ArrayList<StoredBlock> getCheckpointsBefore(long timeSecs) {
+        try {
+            ArrayList<StoredBlock> checkpointsBefore = new ArrayList<>();
+            checkArgument(timeSecs > params.getGenesisBlock().getTimeSeconds());
+            // This is thread safe because the map never changes after creation.
+            Map.Entry<Long, StoredBlock> entry = checkpoints.floorEntry(timeSecs);
+            if (entry != null) {
+                StoredBlock mostRecentCheckpointBlock = entry.getValue();
+                StoredBlock blockBefore = getBlockBefore(mostRecentCheckpointBlock, checkpoints);
+                checkpointsBefore.add(blockBefore);
+                checkpointsBefore.add(mostRecentCheckpointBlock);
+                return checkpointsBefore;
+            }
+            Block genesis = params.getGenesisBlock().cloneAsHeader();
+            checkpointsBefore.add(new StoredBlock(genesis, genesis.getWork(), 0));
+            return checkpointsBefore;
+        } catch (VerificationException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
+    }
+
+    public StoredBlock getBlockBefore(StoredBlock block, TreeMap<Long, StoredBlock> checkpoints) {
+        /*
+        Litecoin does this weird thing with the difficulty adjustment algorithm.
+        In Bitcoin, upon time for the difficulty to adjust (every 2016 blocks), it actually goes back 2015 blocks to calculate.
+        In Litecoin, it goes a full 2016 blocks, so for the checkpoint manager to fully work in litecoinj, we need both the actual
+        block where the difficulty changes, and the block before it.
+         */
+        int heightToLookFor = block.getHeight()-1;
+        for(StoredBlock checkpoint : checkpoints.values()) {
+            if(checkpoint.getHeight() == heightToLookFor) {
+                return checkpoint;
+            }
+        }
+        return null;
+    }
+
     /** Returns the number of checkpoints that were loaded. */
     public int numCheckpoints() {
         return checkpoints.size();
@@ -234,8 +269,12 @@ public class CheckpointManager {
 
         BufferedInputStream stream = new BufferedInputStream(checkpoints);
         CheckpointManager manager = new CheckpointManager(params, stream);
-        StoredBlock checkpoint = manager.getCheckpointBefore(timeSecs);
-        store.put(checkpoint);
-        store.setChainHead(checkpoint);
+        ArrayList<StoredBlock> checkpointsBefore = manager.getCheckpointsBefore(timeSecs);
+        for(int i = 0; i < checkpointsBefore.size(); i++) {
+            store.put(checkpointsBefore.get(i));
+            if(i == checkpointsBefore.size()-1) {
+                store.setChainHead(checkpointsBefore.get(i));
+            }
+        }
     }
 }
