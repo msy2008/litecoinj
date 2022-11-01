@@ -841,7 +841,7 @@ public class WalletTest extends TestWithWallet {
         Transaction send1 = checkNotNull(wallet.createSend(OTHER_ADDRESS, value2));
         Transaction send2 = checkNotNull(wallet.createSend(OTHER_ADDRESS, value2));
         byte[] buf = send1.bitcoinSerialize();
-        buf[43] = 0;  // Break the signature: bitcoinj won't check in SPV mode and this is easier than other mutations.
+        buf[43] = 0;  // Break the signature: litecoinj won't check in SPV mode and this is easier than other mutations.
         send1 = UNITTEST.getDefaultSerializer().makeTransaction(buf);
         wallet.commitTx(send2);
         assertEquals(value, wallet.getBalance(BalanceType.ESTIMATED));
@@ -1770,7 +1770,7 @@ public class WalletTest extends TestWithWallet {
     @Test
     public void autosaveImmediate() throws Exception {
         // Test that the wallet will save itself automatically when it changes.
-        File f = File.createTempFile("bitcoinj-unit-test", null);
+        File f = File.createTempFile("litecoinj-unit-test", null);
         Sha256Hash hash1 = Sha256Hash.of(f);
         // Start with zero delay and ensure the wallet file changes after adding a key.
         wallet.autosaveToFile(f, 0, TimeUnit.SECONDS, null);
@@ -1792,7 +1792,7 @@ public class WalletTest extends TestWithWallet {
         // an auto-save cycle of 1 second.
         final File[] results = new File[2];
         final CountDownLatch latch = new CountDownLatch(3);
-        File f = File.createTempFile("bitcoinj-unit-test", null);
+        File f = File.createTempFile("litecoinj-unit-test", null);
         Sha256Hash hash1 = Sha256Hash.of(f);
         wallet.autosaveToFile(f, 1, TimeUnit.SECONDS,
                 new WalletFiles.Listener() {
@@ -2696,13 +2696,7 @@ public class WalletTest extends TestWithWallet {
         SendRequest request = SendRequest.to(OTHER_SEGWIT_ADDRESS, CENT);
         request.feePerKb = Transaction.DEFAULT_TX_FEE;
         mySegwitWallet.completeTx(request);
-
-        // Fee test, absolute and per virtual kilobyte
-        Coin fee = request.tx.getFee();
-        int vsize = request.tx.getVsize();
-        Coin feePerVkb = fee.multiply(1000).divide(vsize);
-        assertEquals(Coin.valueOf(14100), fee);
-        assertEquals(Transaction.DEFAULT_TX_FEE, feePerVkb);
+        assertEquals(Coin.valueOf(14000), request.tx.getFee());
     }
 
     @Test
@@ -3489,7 +3483,7 @@ public class WalletTest extends TestWithWallet {
             public boolean signInputs(ProposedTransaction propTx, KeyBag keyBag) {
                 assertEquals(propTx.partialTx.getInputs().size(), propTx.keyPaths.size());
                 List<ChildNumber> externalZeroLeaf = ImmutableList.<ChildNumber>builder()
-                        .addAll(DeterministicKeyChain.ACCOUNT_ZERO_PATH)
+                        .addAll(DeterministicKeyChain.BIP44_ACCOUNT_ZERO_PATH)
                         .addAll(DeterministicKeyChain.EXTERNAL_SUBPATH).add(ChildNumber.ZERO).build();
                 for (TransactionInput input : propTx.partialTx.getInputs()) {
                     List<ChildNumber> keypath = propTx.keyPaths.get(input.getConnectedOutput().getScriptPubKey());

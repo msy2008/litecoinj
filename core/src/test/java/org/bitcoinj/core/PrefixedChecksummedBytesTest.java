@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 bitcoinj project
+ * Copyright 2014 litecoinj project
  * Copyright 2019 Tim Strasser
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

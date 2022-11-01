@@ -46,7 +46,7 @@ public class ScriptChunkTest {
 
     @Test
     public void testToStringOnInvalidScriptChunk() {
-        // see https://github.com/bitcoinj/bitcoinj/issues/1860
+        // see https://github.com/litecoinj/litecoinj/issues/1860
         // In summary: toString() throws when given an invalid ScriptChunk.
         // It should perhaps be impossible to even construct such a ScriptChunk, but
         // until that is the case, toString() should not throw.

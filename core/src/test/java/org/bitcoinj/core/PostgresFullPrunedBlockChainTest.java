@@ -30,10 +30,10 @@ import org.junit.Test;
 public class PostgresFullPrunedBlockChainTest extends AbstractFullPrunedBlockChainTest
 {
     // Replace these with your postgres location/credentials and remove @Ignore to test
-    // You can set up a fresh postgres with the command: create user bitcoinj superuser password 'password';
+    // You can set up a fresh postgres with the command: create user litecoinj superuser password 'password';
     private static final String DB_HOSTNAME = "localhost";
-    private static final String DB_NAME = "bitcoinj_test";
-    private static final String DB_USERNAME = "bitcoinj";
+    private static final String DB_NAME = "litecoinj_test";
+    private static final String DB_USERNAME = "litecoinj";
     private static final String DB_PASSWORD = "password";
     private static final String DB_SCHEMA = "blockstore_schema";
 

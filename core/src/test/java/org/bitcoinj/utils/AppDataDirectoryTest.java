@@ -31,7 +31,7 @@ public class AppDataDirectoryTest {
 
     @Test
     public void worksOnCurrentPlatform() {
-        final String appName = "bitcoinj";
+        final String appName = "litecoinj";
         String path = AppDataDirectory.get(appName).toString();
         if (Utils.isWindows()) {
             assertEquals("Path wrong on Windows", winPath(appName), path);
