@@ -1,6 +1,6 @@
 /*
  * Copyright by the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,17 +19,18 @@ package wallettemplate;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.walletfx.application.AppDelegate;
+import org.litecoinj.walletfx.application.AppDelegate;
 
 /**
  * Proxy JavaFX {@link Application} that delegates all functionality
  * to {@link WalletTemplate}
  */
 public class Main extends Application {
-    private static final NetworkParameters params = TestNet3Params.get();
-    private static final Script.ScriptType PREFERRED_OUTPUT_SCRIPT_TYPE = Script.ScriptType.P2WPKH;
+    private static final NetworkParameters params = MainNetParams.get();
+    private static final Script.ScriptType PREFERRED_OUTPUT_SCRIPT_TYPE = Script.ScriptType.P2SH_P2WPKH;
     private static final String APP_NAME = "WalletTemplate";
 
     private final AppDelegate delegate;

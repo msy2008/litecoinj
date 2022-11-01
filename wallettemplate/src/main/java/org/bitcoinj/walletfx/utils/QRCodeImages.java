@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.utils;
+package org.litecoinj.walletfx.utils;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Writer;

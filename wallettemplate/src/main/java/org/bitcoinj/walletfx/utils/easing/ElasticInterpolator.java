@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package org.bitcoinj.walletfx.utils.easing;
+package org.litecoinj.walletfx.utils.easing;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;

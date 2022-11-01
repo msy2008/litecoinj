@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.controls;
+package org.litecoinj.walletfx.controls;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -32,9 +32,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.Duration;
-import org.bitcoinj.walletfx.utils.GuiUtils;
-import org.bitcoinj.walletfx.utils.easing.EasingMode;
-import org.bitcoinj.walletfx.utils.easing.ElasticInterpolator;
+import org.litecoinj.walletfx.utils.GuiUtils;
+import org.litecoinj.walletfx.utils.easing.EasingMode;
+import org.litecoinj.walletfx.utils.easing.ElasticInterpolator;
 
 import javax.annotation.Nullable;
 

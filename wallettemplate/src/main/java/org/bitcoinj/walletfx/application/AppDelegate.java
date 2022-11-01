@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.application;
+package org.litecoinj.walletfx.application;
 
 import javafx.application.Application;
 import javafx.stage.Stage;

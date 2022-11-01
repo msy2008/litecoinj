@@ -29,16 +29,16 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.bitcoinj.walletfx.application.WalletApplication;
-import org.bitcoinj.walletfx.overlay.OverlayController;
-import org.bitcoinj.walletfx.overlay.OverlayableStackPaneController;
+import org.litecoinj.walletfx.application.WalletApplication;
+import org.litecoinj.walletfx.overlay.OverlayController;
+import org.litecoinj.walletfx.overlay.OverlayableStackPaneController;
 import org.bouncycastle.crypto.params.KeyParameter;
-import org.bitcoinj.walletfx.controls.BitcoinAddressValidator;
-import org.bitcoinj.walletfx.utils.TextFieldValidator;
-import org.bitcoinj.walletfx.utils.WTUtils;
+import org.litecoinj.walletfx.controls.BitcoinAddressValidator;
+import org.litecoinj.walletfx.utils.TextFieldValidator;
+import org.litecoinj.walletfx.utils.WTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.bitcoinj.walletfx.utils.GuiUtils.*;
+import static org.litecoinj.walletfx.utils.GuiUtils.*;
 
 import javax.annotation.Nullable;
 
@@ -93,6 +93,7 @@ public class SendMoneyController implements OverlayController<SendMoneyControlle
             // Don't make the user wait for confirmations for now, as the intention is they're sending it
             // their own money!
             req.allowUnconfirmed();
+            req.feePerKb = Coin.valueOf(1000L);
             sendResult = app.walletAppKit().wallet().sendCoins(req);
             Futures.addCallback(sendResult.broadcastComplete, new FutureCallback<>() {
                 @Override
@@ -119,6 +120,7 @@ public class SendMoneyController implements OverlayController<SendMoneyControlle
         } catch (InsufficientMoneyException e) {
             informationalAlert("Could not empty the wallet",
                     "You may have too little money left in the wallet to make a transaction.");
+            e.printStackTrace();
             overlayUI.done();
         } catch (ECKey.KeyIsEncryptedException e) {
             askForPasswordAndRetry();

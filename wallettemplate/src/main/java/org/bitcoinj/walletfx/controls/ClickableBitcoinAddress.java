@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.controls;
+package org.litecoinj.walletfx.controls;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -42,10 +42,10 @@ import javafx.scene.layout.Pane;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.uri.BitcoinURI;
 
-import org.bitcoinj.walletfx.overlay.OverlayController;
-import org.bitcoinj.walletfx.overlay.OverlayableStackPaneController;
-import org.bitcoinj.walletfx.utils.GuiUtils;
-import org.bitcoinj.walletfx.utils.QRCodeImages;
+import org.litecoinj.walletfx.overlay.OverlayController;
+import org.litecoinj.walletfx.overlay.OverlayableStackPaneController;
+import org.litecoinj.walletfx.utils.GuiUtils;
+import org.litecoinj.walletfx.utils.QRCodeImages;
 
 import de.jensd.fx.fontawesome.AwesomeDude;
 import de.jensd.fx.fontawesome.AwesomeIcon;

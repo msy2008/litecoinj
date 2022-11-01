@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.application;
+package org.litecoinj.walletfx.application;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
-import org.bitcoinj.walletfx.overlay.OverlayableStackPaneController;
+import org.litecoinj.walletfx.overlay.OverlayableStackPaneController;
 
 /**
  * Abstract controller class for a wallet application's main window (i.e. the one that is the primary @{code Stage})

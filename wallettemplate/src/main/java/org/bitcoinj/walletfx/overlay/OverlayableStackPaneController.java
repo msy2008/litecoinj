@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bitcoinj.walletfx.overlay;
+package org.litecoinj.walletfx.overlay;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import org.bitcoinj.walletfx.utils.GuiUtils;
+import org.litecoinj.walletfx.utils.GuiUtils;
 
 import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
 
-import static org.bitcoinj.walletfx.utils.GuiUtils.blurIn;
-import static org.bitcoinj.walletfx.utils.GuiUtils.blurOut;
-import static org.bitcoinj.walletfx.utils.GuiUtils.checkGuiThread;
-import static org.bitcoinj.walletfx.utils.GuiUtils.explodeOut;
-import static org.bitcoinj.walletfx.utils.GuiUtils.fadeIn;
-import static org.bitcoinj.walletfx.utils.GuiUtils.fadeOutAndRemove;
-import static org.bitcoinj.walletfx.utils.GuiUtils.zoomIn;
+import static org.litecoinj.walletfx.utils.GuiUtils.blurIn;
+import static org.litecoinj.walletfx.utils.GuiUtils.blurOut;
+import static org.litecoinj.walletfx.utils.GuiUtils.checkGuiThread;
+import static org.litecoinj.walletfx.utils.GuiUtils.explodeOut;
+import static org.litecoinj.walletfx.utils.GuiUtils.fadeIn;
+import static org.litecoinj.walletfx.utils.GuiUtils.fadeOutAndRemove;
+import static org.litecoinj.walletfx.utils.GuiUtils.zoomIn;
 
 /**
  * Abstract Controller for a {@link StackPane} that can have other {@link Pane}s displayed on top of it as a modals.

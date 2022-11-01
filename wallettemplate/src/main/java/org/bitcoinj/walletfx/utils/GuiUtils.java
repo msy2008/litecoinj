@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.utils;
+package org.litecoinj.walletfx.utils;
 
 import com.google.common.base.Throwables;
 import javafx.animation.*;
@@ -33,7 +33,7 @@ import java.net.URL;
 import java.util.function.BiConsumer;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.bitcoinj.walletfx.utils.WTUtils.unchecked;
+import static org.litecoinj.walletfx.utils.WTUtils.unchecked;
 
 public class GuiUtils {
     public static void runAlert(BiConsumer<Stage, AlertWindowController> setup) {

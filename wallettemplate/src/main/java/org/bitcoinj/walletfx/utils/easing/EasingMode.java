@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package org.bitcoinj.walletfx.utils.easing;
+package org.litecoinj.walletfx.utils.easing;
 
 /**
  * Defines the three easing modes, ease-in, ease-out and ease-both.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bitcoinj.walletfx.application;
+package org.litecoinj.walletfx.application;
 
 import com.google.common.util.concurrent.Service;
 import javafx.application.Platform;
@@ -29,14 +29,14 @@ import org.bitcoinj.utils.AppDataDirectory;
 import org.bitcoinj.utils.BriefLogFormatter;
 import org.bitcoinj.utils.Threading;
 import org.bitcoinj.wallet.DeterministicSeed;
-import org.bitcoinj.walletfx.utils.GuiUtils;
+import org.litecoinj.walletfx.utils.GuiUtils;
 import wallettemplate.WalletSetPasswordController;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 
-import static org.bitcoinj.walletfx.utils.GuiUtils.informationalAlert;
+import static org.litecoinj.walletfx.utils.GuiUtils.informationalAlert;
 
 /**
  * Base class for JavaFX Wallet Applications
@@ -113,7 +113,7 @@ public abstract class WalletApplication implements AppDelegate {
     }
 
     protected void startWalletAppKit(Stage primaryStage) throws IOException {
-        // Tell bitcoinj to run event handlers on the JavaFX UI thread. This keeps things simple and means
+        // Tell litecoinj to run event handlers on the JavaFX UI thread. This keeps things simple and means
         // we cannot forget to switch threads when adding event handlers. Unfortunately, the DownloadListener
         // we give to the app kit is currently an exception and runs on a library thread. It'll get fixed in
         // a future version.
