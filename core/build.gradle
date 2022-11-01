@@ -5,7 +5,7 @@ plugins {
     id 'eclipse'
 }
 
-version = '0.16.1'
+version = '0.16'
 
 dependencies {
     api 'org.bouncycastle:bcprov-jdk15to18:1.69'
@@ -48,9 +48,9 @@ protobuf {
 }
 
 test {
-    exclude 'org/bitcoinj/core/PeerTest*'
-    exclude 'org/bitcoinj/core/TransactionBroadcastTest*'
-    exclude 'org/bitcoinj/net/discovery/DnsDiscoveryTest*'
+    exclude 'org/litecoinj/core/PeerTest*'
+    exclude 'org/litecoinj/core/TransactionBroadcastTest*'
+    exclude 'org/litecoinj/net/discovery/DnsDiscoveryTest*'
     testLogging {
         events "failed"
         exceptionFormat "full"
@@ -84,13 +84,35 @@ artifacts {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'bitcoinj-core'
+            artifactId = 'litecoinj-core'
             from components.java
             artifact sourcesJar
             artifact javadocJar
 
             pom {
-                description = 'A Java Bitcoin library'
+                description = 'A Java Litecoin library'
+            }
+        }
+    }
+    repositories {
+        def maven_url = findProperty('MAVEN_URL') ?: System.getenv("MAVEN_URL")
+        if (maven_url) {
+            maven {
+                credentials {
+                    username findProperty('MAVEN_USERNAME') ?: System.getenv("MAVEN_USERNAME")
+                    password findProperty('MAVEN_PASSWORD') ?: System.getenv("MAVEN_PASSWORD")                }
+                url maven_url
+            }
+        }
+        def github_actor = System.getenv("GITHUB_ACTOR")
+        if (github_actor) {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/bitbandi/litecoinj"
+                credentials {
+                    username = github_actor
+                    password = System.getenv("GITHUB_TOKEN")
+                }
             }
         }
     }
